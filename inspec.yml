@@ -1,0 +1,19 @@
+name: debian-12-stig-baseline
+title: Debian 12 STIG-Ready Baseline
+maintainer: MITRE SAF Team
+copyright: MITRE
+license: Apache-2.0
+summary: "STIG-ready InSpec baseline for Debian 12 (bookworm), overlaying the DISA STIG for Canonical Ubuntu 22.04 LTS"
+version: 0.1.0
+inspec_version: ">= 4.0"
+
+supports:
+  - platform-name: debian
+    release: 12.*
+
+depends:
+  - name: canonical-ubuntu-22.04-lts-stig-baseline
+    git: https://github.com/mitre/canonical-ubuntu-22.04-lts-stig-baseline.git
+    # Track main until the upstream cuts a tagged release that includes the
+    # debian entry in its supports list; then pin to that tag.
+    branch: main
