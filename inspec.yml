@@ -18,3 +18,14 @@ depends:
     # this profile depends on (broken-test repairs, version correction).
     # Replace with a tag pin once the branch merges and a release is cut.
     branch: "2.7.1"
+
+inputs:
+  # SV-260559: the upstream default embeds Ubuntu's cloud-image default user
+  # ('ubuntu'), which does not exist on Debian. Mirror the convention with
+  # Debian's cloud-image default user; sites override with their real admin
+  # accounts.
+  - name: sudo_accounts
+    description: Array of users who need access to security functions are part of the sudo group.
+    type: Array
+    value: ["debian"]
+    profile: canonical-ubuntu-22.04-lts-stig-baseline
