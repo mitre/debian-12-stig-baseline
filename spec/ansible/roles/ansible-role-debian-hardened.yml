@@ -1,16 +1,35 @@
 ---
-# Hardened Debian 12 suite — PLACEHOLDER, NOT YET HARDENED.
+# Hardened Debian 12 suite.
 #
-# The hardening role is an open decision (beads card
-# debian-12-stig-baseline-1fx.4): no DISA STIG remediation playbook exists for
-# Debian, so a CIS-style role will likely stand in, as SUSE15-CIS does for the
-# SLES profile. Until that lands, this playbook applies only the vanilla prep so
-# the hardened suite exercises the full pipeline (converge -> verify ->
-# thresholds) against a stock box. The hardened threshold stays at
-# compliance.min 0 partly for this reason — do not raise it while this
-# placeholder is in play.
+# No DISA STIG remediation playbook exists for Debian; ansible-lockdown ships
+# only the CIS benchmark role (DEBIAN12-CIS). CIS is not the STIG, but it is
+# the closest available automated hardening baseline for Debian 12, so we use
+# it to get the box into a hardened state. The InSpec profile here still
+# validates against the STIG — the CIS role just ensures the scan runs against
+# a hardened target rather than a stock image.
 - hosts:
     - localhost
   roles:
     - roles/ansible-role-debian-vanilla
+    - roles/DEBIAN12-CIS
   serial: 50
+  become: yes
+  vars:
+    # Variable names verified against the role's 2.0.5 defaults (prefix
+    # deb12cis_). The role's own defaults already skip reboots, the grub
+    # password, and its goss audit, so only the deltas below are needed.
+    # Level 1 only for the first hardened baseline; enable level 2 once the
+    # level-1 run is stable in CI.
+    deb12cis_level_2: false
+    # CIS 5.4.2.4 requires a root password to be SET; the STIG requires root
+    # LOCKED, and cloud images ship it locked. Skip the CIS rule so the box
+    # stays STIG-shaped; the CI VM is a bellwether, so the only cost is a
+    # marginally less representative scan.
+    deb12cis_rule_5_4_2_4: false
+    # Rule 5.2.4 rewrites NOPASSWD -> PASSWD in sudoers for every account not
+    # on this list, which would strip the Kitchen login user's passwordless
+    # sudo and kill the InSpec verify (sudo over a non-TTY SSH session cannot
+    # prompt). The surviving NOPASSWD entry is still reported as a finding by
+    # the profile — a test-harness artifact.
+    deb12cis_sudoers_exclude_nopasswd_list:
+      - debian
