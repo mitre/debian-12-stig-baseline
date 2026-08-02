@@ -25,8 +25,8 @@ include_controls 'canonical-ubuntu-22.04-lts-stig-baseline' do
       !%w[docker podman kubepods lxc].include?(virtualization.system)
     }
 
-    describe command('grep -i 1 /proc/sys/crypto/fips_enabled') do
-      its('stdout') { should match('1') }
+    describe kernel_parameter('crypto.fips_enabled') do
+      its('value') { should eq 1 }
     end
 
     describe 'NIST FIPS-validated cryptographic modules' do
