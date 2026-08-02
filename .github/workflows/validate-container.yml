@@ -24,7 +24,9 @@ jobs:
       PLATFORM: "debian-12"
       DEPLOYMENT: "container"
       VANILLA_CONTAINER_IMAGE: "docker.io/library/debian:12"
-      HARDENED_CONTAINER_IMAGE: "registry1.dso.mil/ironbank/opensource/debian/debian:12"
+      # The Iron Bank Debian repo tags bookworm by minor version only (no
+      # plain "12", unlike trixie's plain "13"); 12.15 is its newest tag.
+      HARDENED_CONTAINER_IMAGE: "registry1.dso.mil/ironbank/opensource/debian/debian:12.15"
     strategy:
       matrix:
         include:
