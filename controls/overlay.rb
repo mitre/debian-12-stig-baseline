@@ -1,25 +1,6 @@
-# Debian 12 overlay of the Canonical Ubuntu 22.04 LTS STIG baseline.
-#
-# All controls from the upstream profile are included as-is except the spot
-# overrides below, which implement the dispositions ruled on the 1fx.3 audit
-# card (see its notes for the full control-status table and decision record).
-#
-# A control block inside include_controls REPLACES the upstream control's
-# checks (verified empirically), so a control is only overlaid when its
-# behavior on Debian must actually differ; anything that would merely add
-# commentary runs pure upstream, with the nuance documented in the README
-# (see "FIPS 140 on Debian" for the FIPS-family controls SV-260531,
-# SV-260532, SV-260533, and SV-260572, which verify approved-algorithm
-# configuration and run unmodified here).
 include_controls 'canonical-ubuntu-22.04-lts-stig-baseline' do
-  # SV-260650: the requirement is NIST FIPS-*validated* cryptography. On
-  # Ubuntu, fips_enabled=1 implies the Ubuntu Pro validated module stack; on
-  # Debian the same flag is reachable with stock, uncertified builds, so the
-  # upstream proxy check would pass misleadingly. Ruling (ported from
-  # debian-11's SV-238363): keep the kernel check as posture evidence and ADD
-  # an assertion that always fails on Debian — a deliberate standing CAT I
-  # finding so this profile never presents an uncertified platform as
-  # FIPS-validated.
+  # SV-260650: Debian ships no FIPS-validated modules, so this keeps the
+  # kernel-flag evidence but always fails; see README, "FIPS 140 on Debian".
   control 'SV-260650' do
     only_if('This control is Not Applicable to containers', impact: 0.0) {
       !%w[docker podman kubepods lxc].include?(virtualization.system)
@@ -36,13 +17,8 @@ include_controls 'canonical-ubuntu-22.04-lts-stig-baseline' do
     end
   end
 
-  # SV-278951: the upstream control verifies Ubuntu 22.04's identity and
-  # support lifecycle (standard support -> Ubuntu Pro ESM). Rewritten for
-  # Debian 12's identity and published lifecycle: Debian LTS covers bookworm
-  # through 2028-06-30 (free, part of the regular archive); beyond that,
-  # Extended LTS (Freexian ELTS, commercial) runs through 2033-06-30 via its
-  # own apt repository — the Debian analog of the upstream's `pro status`
-  # subscription branch.
+  # SV-278951: rewritten for Debian 12's identity and published lifecycle —
+  # free Debian LTS to 2028-06-30, then Freexian Extended LTS to 2033-06-30.
   control 'SV-278951' do
     only_if('This control is Not Applicable to containers', impact: 0.0) {
       !%w[docker podman kubepods lxc].include?(virtualization.system)
@@ -65,8 +41,7 @@ include_controls 'canonical-ubuntu-22.04-lts-stig-baseline' do
         end
       end
     elsif now <= elts_eol
-      # Beyond free LTS; vendor support requires the commercial Freexian
-      # Extended LTS repository to be configured.
+      # Past free LTS: vendor support requires the commercial Freexian ELTS repo.
       elts_sources = command('grep -rsiE "deb\\.freexian\\.com/extended-lts|extended-lts" /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null')
 
       describe 'Debian 12 Extended LTS (Freexian) apt source' do

@@ -85,8 +85,7 @@ lifecycle:
         # (bookworm marks the system Python externally managed, so a venv is
         # required for pip installs anyway). bookworm's Python is 3.11; the
         # ansible-core 2.18 series supports controller Python 3.11-3.13 and
-        # satisfies the hardened suite's DEBIAN12-CIS 2.0.5 minimum of 2.16.1
-        # (decision: card debian-12-stig-baseline-1fx.4).
+        # satisfies the hardened suite's DEBIAN12-CIS 2.0.5 minimum of 2.16.1.
         sudo python3 -m venv /opt/ansible-venv
         sudo /opt/ansible-venv/bin/pip install --upgrade pip
         sudo /opt/ansible-venv/bin/pip install "ansible-core>=2.18,<2.19"
