@@ -1,10 +1,5 @@
-# Pass/fail gate for the Debian 12 "hardened" container scan.
-#
-# compliance.min is 0 while the overlay is being stood up and the hardened
-# image source is undecided (card 1fx.4). Tune independently from the VM
-# thresholds once the image is chosen and container-aware inputs are in place.
 compliance:
-  min: 0
+  min: 50
 error:
   total:
     max: 0

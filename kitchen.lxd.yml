@@ -23,7 +23,12 @@ provisioner:
   require_pip3: false
   ansible_binary_path: /opt/ansible-venv/bin
   ansible_connection: local
-  ansible_verbose: true
+  # Verbose ansible prints each task's full result, and package_facts emits
+  # that as a single multi-megabyte line — which GitHub truncates its step
+  # log at, hiding everything after it (including real failures). Ansible
+  # prints fatal/failed task output regardless of verbosity, so failure
+  # diagnostics survive without it.
+  ansible_verbose: false
   roles_path: spec/ansible/roles
   galaxy_ignore_certs: true
   requirements_path: spec/ansible/roles/requirements.yml
@@ -79,10 +84,8 @@ lifecycle:
         # path for kitchen-ansible and no PEP-668 externally-managed conflicts
         # (bookworm marks the system Python externally managed, so a venv is
         # required for pip installs anyway). bookworm's Python is 3.11; the
-        # ansible-core 2.18 series supports controller Python 3.11-3.13, which
-        # is current enough for modern hardening roles. Revisit alongside the
-        # hardening-role decision (card debian-12-stig-baseline-1fx.4) if the
-        # chosen role needs a different series.
+        # ansible-core 2.18 series supports controller Python 3.11-3.13 and
+        # satisfies the hardened suite's DEBIAN12-CIS 2.0.5 minimum of 2.16.1.
         sudo python3 -m venv /opt/ansible-venv
         sudo /opt/ansible-venv/bin/pip install --upgrade pip
         sudo /opt/ansible-venv/bin/pip install "ansible-core>=2.18,<2.19"
@@ -90,6 +93,12 @@ lifecycle:
         # not via ansible_binary_path, so expose the venv binaries on PATH.
         sudo ln -sf /opt/ansible-venv/bin/ansible /opt/ansible-venv/bin/ansible-playbook /opt/ansible-venv/bin/ansible-galaxy /opt/ansible-venv/bin/ansible-doc /opt/ansible-venv/bin/ansible-config /usr/local/bin/
         echo ""
+        echo "+++ Unlocking the kitchen user password +++"
+        # The image bake sets a password so the account is not locked, but
+        # cloud-init's first-boot handling of the image's default user
+        # (lock_passwd: true) re-locks it, which hardening-role prelims
+        # rightly refuse. Strip the lock; the baked password remains.
+        sudo usermod -U <%= ENV.fetch("LXD_VM_USERNAME", "debian") %>
         echo "+++ Keeping the kitchen sudo user usable after the hardening phase +++"
         sudo chage -d $(( $( date +%s ) / 86400 )) <%= ENV.fetch("LXD_VM_USERNAME", "debian") %> || true
         echo ""
