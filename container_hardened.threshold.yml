@@ -1,5 +1,5 @@
 compliance:
-  min: 0
+  min: 50
 error:
   total:
     max: 0
