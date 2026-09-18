@@ -3,7 +3,7 @@ include_controls 'canonical-ubuntu-22.04-lts-stig-baseline' do
   # kernel-flag evidence but always fails; see README, "FIPS 140 on Debian".
   control 'SV-260650' do
     only_if('This control is Not Applicable to containers', impact: 0.0) {
-      !%w[docker podman kubepods lxc].include?(virtualization.system)
+      !virtualization.container_system?
     }
 
     describe kernel_parameter('crypto.fips_enabled') do
@@ -21,7 +21,7 @@ include_controls 'canonical-ubuntu-22.04-lts-stig-baseline' do
   # free Debian LTS to 2028-06-30, then Freexian Extended LTS to 2033-06-30.
   control 'SV-278951' do
     only_if('This control is Not Applicable to containers', impact: 0.0) {
-      !%w[docker podman kubepods lxc].include?(virtualization.system)
+      !virtualization.container_system?
     }
 
     describe 'Debian release identity' do
