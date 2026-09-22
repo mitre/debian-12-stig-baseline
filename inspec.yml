@@ -14,10 +14,7 @@ supports:
 depends:
   - name: canonical-ubuntu-22.04-lts-stig-baseline
     git: https://github.com/mitre/canonical-ubuntu-22.04-lts-stig-baseline.git
-    # Interim: track the upstream's open patch branch, which carries fixes
-    # this profile depends on (broken-test repairs, version correction).
-    # Replace with a tag pin once the branch merges and a release is cut.
-    branch: "2.7.1"
+    branch: main
 
 inputs:
   # SV-260559: the upstream default embeds Ubuntu's cloud-image default user
