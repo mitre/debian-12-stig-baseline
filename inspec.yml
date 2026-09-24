@@ -14,7 +14,7 @@ supports:
 depends:
   - name: canonical-ubuntu-22.04-lts-stig-baseline
     git: https://github.com/mitre/canonical-ubuntu-22.04-lts-stig-baseline.git
-    branch: main
+    tag: v2.7.2
 
 inputs:
   # SV-260559: the upstream default embeds Ubuntu's cloud-image default user
